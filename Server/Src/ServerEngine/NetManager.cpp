@@ -99,6 +99,7 @@ BOOL CNetManager::StartNetListen(UINT16 nPortNum, std::string strIpAddr)
         SvrAddr.sin_addr.s_addr = CommonSocket::IpAddrStrToInt(strIpAddr.c_str());
     }
 
+    // 7.1 创建监听套接字
     m_hListenSocket = CommonSocket::CreateSocket(AF_INET, SOCK_STREAM, 0);
     if(m_hListenSocket == INVALID_SOCKET)
     {
@@ -106,22 +107,27 @@ BOOL CNetManager::StartNetListen(UINT16 nPortNum, std::string strIpAddr)
         return FALSE;
     }
 
+    // 7.2 设置成非阻塞套接字
     CommonSocket::SetSocketBlock(m_hListenSocket, FALSE);
 
+    // 7.3 SO_REUSEADDR
     CommonSocket::SetSocketReuseable(m_hListenSocket);
 
+    // 7.3 bind
     if(!CommonSocket::BindSocket(m_hListenSocket, (sockaddr*)&SvrAddr, sizeof(SvrAddr)))
     {
         CLog::GetInstancePtr()->LogError("邦定套接字失败原因:%s!", CommonFunc::GetLastErrorStr(CommonSocket::GetSocketLastError()).c_str());
         return FALSE;
     }
 
+    // 7.4 listen
     if(!CommonSocket::ListenSocket(m_hListenSocket, 20))
     {
         CLog::GetInstancePtr()->LogError("监听线程套接字失败:%s!", CommonFunc::GetLastErrorStr(CommonSocket::GetSocketLastError()).c_str());
         return FALSE;
     }
 
+    // 7.5 epoll_ctl，m_hListenSocket
     if (!WaitConnect())
     {
         CLog::GetInstancePtr()->LogError("等待接受连接失败:%s!", CommonFunc::GetLastErrorStr(CommonSocket::GetSocketLastError()).c_str());
@@ -574,28 +580,33 @@ BOOL CNetManager::Start(UINT16 nPortNum, INT32 nMaxConn, IDataHandler* pBufferHa
 {
     ERROR_RETURN_FALSE(pBufferHandler != NULL);
 
-    m_pBufferHandler = pBufferHandler;
+    m_pBufferHandler = pBufferHandler;          // 中间层
 
+    // 6.1 初始化连接池
     CConnectionMgr::GetInstancePtr()->InitConnectionList(nMaxConn);
 
+    // 6.2 初始化网络，实际是忽略信号
     if(!InitNetwork())
     {
         CLog::GetInstancePtr()->LogError("初始化网络失败！！");
         return FALSE;
     }
 
+    // 6.3 创建epollfd
     if(!CreateCompletePort())
     {
         CLog::GetInstancePtr()->LogError("创建完成端口或Epoll失败！！");
         return FALSE;
     }
 
+    // 6.4 创建线程
     if(!CreateEventThread(0))
     {
         CLog::GetInstancePtr()->LogError("创建网络事件处理线程失败！！");
         return FALSE;
     }
 
+    // 7. 创建监听套接字，并加入epoll
     if(!StartNetListen(nPortNum, strIpAddr))
     {
         CLog::GetInstancePtr()->LogError("开启监听失败！！");

@@ -28,13 +28,13 @@ BOOL CConfigFile::Load( std::string strFileName )
 
         if(szBuff[0] == '#')
         {
-            continue;
+            continue;       // 跳过注释的内容
         }
 
         CHAR* pChar = strchr(szBuff, '=');
         if(pChar == NULL)
         {
-            continue;
+            continue;       // 跳过空行
         }
 
         std::string strName;
@@ -69,6 +69,7 @@ std::string CConfigFile::GetStringValue( std::string strName )
         return itor->second;
     }
 
+    // 没有配置
     CLog::GetInstancePtr()->LogError("无效的配制选项: [%s]", strName.c_str());
 
     return "";
@@ -97,6 +98,7 @@ INT32 CConfigFile::GetRealNetPort(std::string VarName)
         return nPort;
     }
 
+    // 按区分ID返回当前服务器的端口号
     if (VarName == "logic_svr_port")
     {
         return GetIntValue("areaid") + 10000;

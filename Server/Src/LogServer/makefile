@@ -5,12 +5,14 @@ MY_INCLUDE=-I$(PWD) \
 		-I../ServerEngine \
 		-I../WatcherClient \
 		-I../../Common \
+		-I../../Common/protobuf/src \
 		-I../../Common/Mysql
 					 
 CC_LIB=-L/usr/lib \
 	-L/lib \
 	-L/usr/lib64/mysql \
 	-L/usr/lib/mysql \
+	-L../Common/Lib/libmysql\
 	-lpthread -lprotobuf -lmysqlclient
 			 
 MY_LIB=-L../Debug \

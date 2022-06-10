@@ -14,7 +14,7 @@ BOOL  CommonSocket::SetSocketReuseable(SOCKET hSocket)
 }
 
 
-//设置套接字阻塞状态
+// 设置套接字阻塞状态
 BOOL    CommonSocket::SetSocketBlock(SOCKET hSocket, BOOL bBlock)
 {
 #ifdef WIN32

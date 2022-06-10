@@ -1,6 +1,9 @@
 #ifndef __COMMAND_LINE_H__
 #define __COMMAND_LINE_H__
 
+/* 命令行参数
+ * 以键值对的方式设置
+ * */
 class CCommandLine
 {
 public:

@@ -878,15 +878,19 @@ BOOL CConnectionMgr::InitConnectionList(INT32 nMaxCons)
     ERROR_RETURN_FALSE(m_pFreeConnRoot == NULL);
     ERROR_RETURN_FALSE(m_pFreeConnTail == NULL);
 
+    // 初始化数组
     m_vtConnList.assign(nMaxCons, NULL);
+
     for(INT32 i = 0; i < nMaxCons; i++)
     {
         CConnection* pConn = new CConnection();
 
-        m_vtConnList[i] = pConn;
+        m_vtConnList[i] = pConn;            // 加入数组
 
+        // 设置连接池ID
         pConn->SetConnectionID(i + 1) ;
 
+        // 加入链表中
         if (m_pFreeConnRoot == NULL)
         {
             m_pFreeConnRoot = pConn;
@@ -895,6 +899,7 @@ BOOL CConnectionMgr::InitConnectionList(INT32 nMaxCons)
         }
         else
         {
+            // 按顺序插入
             m_pFreeConnTail->m_pNext = pConn;
             m_pFreeConnTail = pConn;
             m_pFreeConnTail->m_pNext = NULL;

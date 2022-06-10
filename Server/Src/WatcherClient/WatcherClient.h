@@ -1,6 +1,7 @@
 ﻿#ifndef _WATCHER_CLIENT_H_
 #define _WATCHER_CLIENT_H_
 
+/* 观察者客户端 */
 class CWatcherClient
 {
 private:
@@ -24,7 +25,7 @@ public:
 
     BOOL        StopServer();
 
-    BOOL                    m_bRun;
+    BOOL                    m_bRun;         // 默认True
 public:
     //*********************消息处理定义开始******************************
     //*********************消息处理定义结束******************************

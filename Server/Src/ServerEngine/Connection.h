@@ -35,6 +35,7 @@ struct NetIoOperatorData
     void            Reset();
 };
 
+/* 连接池对象 */
 class CConnection
 {
 public:
@@ -48,6 +49,7 @@ public:
 
     UINT64  GetConnectionData();
 
+    // 设置连接池ID
     VOID    SetConnectionID(INT32 nConnID);
 
     VOID    SetConnectionData(UINT64 uData);
@@ -99,7 +101,7 @@ public:
 
     NetIoOperatorData           m_IoOverLapPost;
 
-    INT32                       m_nConnID;
+    INT32                       m_nConnID;          // 对象ID
     UINT64                      m_uConnData;
 
     IDataHandler*               m_pDataHandler;
@@ -129,7 +131,7 @@ public:
     INT32                       m_nSendingPos;
 };
 
-
+/* 连接池 */
 class CConnectionMgr
 {
 private:
@@ -141,6 +143,7 @@ public:
     static CConnectionMgr* GetInstancePtr();
 
 public:
+    // 初始话连接池
     BOOL            InitConnectionList(INT32 nMaxCons);
 
     CConnection*    CreateConnection();
@@ -158,9 +161,9 @@ public:
 
 public:
 
-    CConnection*                m_pFreeConnRoot;
-    CConnection*                m_pFreeConnTail;
-    std::vector<CConnection*>   m_vtConnList;            //连接列表
+    CConnection*                m_pFreeConnRoot;        // 指向最后一个对象的指针
+    CConnection*                m_pFreeConnTail;        // 指向最后一个对象的指针
+    std::vector<CConnection*>   m_vtConnList;           // 连接列表
     std::mutex                  m_ConnListMutex;
 };
 

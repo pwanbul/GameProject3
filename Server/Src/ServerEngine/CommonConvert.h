@@ -1,12 +1,16 @@
 ﻿#ifndef __COMMON_CONVERT__
 #define __COMMON_CONVERT__
 
+/* 类型转换misc函数 */
 namespace CommonConvert
 {
+// atoi
 INT32 StringToInt(const char* pStr);
 
+// atoll
 INT64 StringToInt64(const char* pStr);
 
+// atof
 FLOAT StringToFloat(const char* pStr);
 
 DOUBLE StringToDouble(const char* pStr);
@@ -65,6 +69,7 @@ INT32 CountSymbol(const char* pStr, char cSymbol);
 
 BOOL HasSymbol(const char* pStr, const char* pszSymbol);
 
+// 去除字符串前后的多余字符
 BOOL StringTrim(std::string& strValue);
 
 BOOL StrCopy(char* pszDest, const char* pszSrc, INT32 nLen);

@@ -8,8 +8,8 @@
 #include "TimerManager.h"
 #include "PacketHeader.h"
 
-#define NEW_CONNECTION 1
-#define CLOSE_CONNECTION 2
+#define NEW_CONNECTION 1            // 新的已完成套接字
+#define CLOSE_CONNECTION 2          // 关闭已完成套接字
 
 ServiceBase::ServiceBase(void)
 {
@@ -53,6 +53,7 @@ BOOL ServiceBase::StartNetwork(UINT16 nPortNum, INT32 nMaxConn, IPacketDispatche
 
     m_pPacketDispatcher = pDispather;
 
+    // keynote 创建连接池，创建线程，epoll，监听套接字
     if (!CNetManager::GetInstancePtr()->Start(nPortNum, nMaxConn, this, strListenIp))
     {
         CLog::GetInstancePtr()->LogError("启动网络层失败!");
@@ -173,24 +174,28 @@ BOOL ServiceBase::Update()
 {
     if (m_uLastTick == 0)
     {
+        // 初始化tick数
         m_uLastTick = CommonFunc::GetTickCount();
     }
 
-    m_QueueLock.Lock();
+    m_QueueLock.Lock();     // 加自选锁
+    // 交换容器中数据，实际值交换了指针
     std::swap(m_pRecvDataQueue, m_pDispathQueue);
-    m_QueueLock.Unlock();
+    m_QueueLock.Unlock();   // 解除自选锁
 
-    if (m_pDispathQueue->size() > 0)
+    if (m_pDispathQueue->size() > 0)            // 分配队列不为空
     {
         for (std::deque<NetPacket>::iterator itor = m_pDispathQueue->begin(); itor != m_pDispathQueue->end(); ++itor)
         {
             NetPacket& item = *itor;
             if (item.m_nMsgID == NEW_CONNECTION)
             {
+                // 什么事情也没做？？？
                 m_pPacketDispatcher->OnNewConnect(item.m_nConnID);
             }
             else if (item.m_nMsgID == CLOSE_CONNECTION)
             {
+                // 什么事情也没做？？？
                 m_pPacketDispatcher->OnCloseConnect(item.m_nConnID);
                 //发送通知
                 CConnectionMgr::GetInstancePtr()->DeleteConnection(item.m_nConnID);
@@ -206,11 +211,12 @@ BOOL ServiceBase::Update()
             }
         }
 
-        m_pDispathQueue->clear();
+        m_pDispathQueue->clear();           // 清空
     }
 
     m_nFps += 1;
 
+    // 将统计量写入运行日志
     if((CommonFunc::GetTickCount() - m_uLastTick) > 1000)
     {
         m_pPacketDispatcher->OnSecondTimer();
@@ -222,6 +228,7 @@ BOOL ServiceBase::Update()
         m_uLastTick = CommonFunc::GetTickCount();
     }
 
+    // 处理定时器任务
     TimerManager::GetInstancePtr()->UpdateTimer();
 
     return TRUE;

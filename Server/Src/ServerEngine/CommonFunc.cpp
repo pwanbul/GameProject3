@@ -22,6 +22,7 @@ std::string CommonFunc::GetCurrentWorkDir()
 #ifdef WIN32
     _getcwd(szPath, 1024);
 #else
+    // 注意和"/proc/self/exe"的区别
     getcwd(szPath, 1024);
 #endif
     return std::string(szPath);
@@ -34,7 +35,12 @@ std::string CommonFunc::GetCurrentExeDir()
     GetModuleFileName(NULL, szPath, 1024);
     char* p = strrchr(szPath, '\\');
 #else
+    /*
+     * 注意和getcwd的区别，cwd是指启动进程目录
+     * "/proc/self/exe" 是一个软链接，指向进程的可执行文件，读取到的是绝对路径
+     * */
     readlink("/proc/self/exe", szPath, sizeof(szPath));
+    // 获取最后一个'/'分量
     char* p = strrchr(szPath, '/');
 #endif
     *p = 0;
@@ -52,6 +58,7 @@ BOOL CommonFunc::SetCurrentWorkDir(std::string strPath)
 #ifdef WIN32
     SetCurrentDirectory(strPath.c_str());
 #else
+    // 修改cwd
     chdir(strPath.c_str());
 #endif
     return TRUE;
@@ -217,6 +224,7 @@ UINT64 CommonFunc::GetTickCount()
 #else
     UINT64 uTickCount = 0;
     struct timespec on;
+    // 获取自启动到现在的时间，调了时间(date)也不会随着变化
     if(0 == clock_gettime(CLOCK_MONOTONIC, &on) )
     {
         uTickCount = on.tv_sec * 1000 + on.tv_nsec / 1000000;
@@ -920,30 +928,38 @@ BOOL CommonFunc::IsAlreadyRun(std::string strSignName)
     CHAR szbuf[32] = {0};
 
     std::string strLockFile = "/var/run/" + strSignName + ".pid";
+    // 创建文件
     fd = open(strLockFile.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0)
     {
         return TRUE;
     }
 
+    // 记录锁(字节范围锁)
     struct flock fl;
-    fl.l_type  = F_WRLCK;
-    fl.l_start = 0;
-    fl.l_whence = SEEK_SET;
-    fl.l_len   = 0;
+    fl.l_type  = F_WRLCK;           // 加写锁，排他
+    fl.l_whence = SEEK_SET;         // 起始偏移量
+    fl.l_start = 0;                 // 相对l_whence的偏移量
+    fl.l_len   = 0;                 // 设置加锁区间，为0表示从开始位置直到文件结束EOF
 
-    if (fcntl(fd, F_SETLK, &fl) < 0)
+    if (fcntl(fd, F_SETLK, &fl) < 0)        // 如果是F_SETLKW，则是非阻塞的
     {
         close(fd);
         return TRUE;
     }
 
-    ftruncate(fd, 0);
+    ftruncate(fd, 0);       // 截断文件
 
+    // 标准处理，在文件中写入进程ID
     snprintf(szbuf, 32, "%ld", (long)getpid());
 
     write(fd, szbuf, strlen(szbuf) + 1);
 
+    /* 注意
+     * 1.程退出后该进程加的锁自动失效；
+     * 2.进程关闭了该文件描述符fd，则加的锁失效。（所以整个进程生命周期内不能关闭该fd）；
+     * 3.锁的状态不会被子进程继承，如果进程关闭则失效而不管子进程是否运行。
+     * */
     return FALSE;
 #endif
 }

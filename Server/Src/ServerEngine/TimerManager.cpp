@@ -8,7 +8,7 @@ TimerManager::TimerManager()
 
     m_pFreeHead = NULL;
 
-    m_uInitTime = CommonFunc::GetCurrTime();
+    m_uInitTime = CommonFunc::GetCurrTime();        // 定时器管理器初始化时间
 }
 
 TimerManager::~TimerManager()
@@ -77,12 +77,13 @@ VOID TimerManager::UpdateTimer()
 {
     m_uCurTime = CommonFunc::GetCurrTime();
     TimeEvent* pCurEvent = m_pUsedHead;
-    while(pCurEvent != NULL)
+    while(pCurEvent != NULL)        // 触发队列不为空
     {
         BOOL bRet = TRUE;
+        // 从触发队列头开始处理
         if(m_uCurTime >= pCurEvent->m_uFireTime)
         {
-            //避免每次启动服务器，之前的定时器都执行一遍
+            // 避免每次启动服务器，之前的定时器都执行一遍
             if(m_uInitTime <= pCurEvent->m_uFireTime)
             {
                 bRet = OnTimerEvent(pCurEvent);
@@ -90,6 +91,7 @@ VOID TimerManager::UpdateTimer()
 
             pCurEvent->m_nRepeateTimes -= 1;
 
+            // 按定时器类型，设置下一次的触发时间戳
             if(pCurEvent->m_nType == 1)
             {
                 pCurEvent->m_uFireTime = pCurEvent->m_uFireTime + 86400;
@@ -102,10 +104,10 @@ VOID TimerManager::UpdateTimer()
 
         if(pCurEvent->m_nRepeateTimes <= 0 || !bRet)
         {
-            //首先从己用中删除
+            // 首先从触发链表中删除
             if (pCurEvent == m_pUsedHead)
             {
-                //自己是首结点
+                // 自己是首结点
                 m_pUsedHead = pCurEvent->m_pNext;
                 if (m_pUsedHead != NULL)
                 {
@@ -127,16 +129,16 @@ VOID TimerManager::UpdateTimer()
             pCurEvent = pCurEvent->m_pNext;
 
             if (m_pFreeHead != NULL)
-            {
+            {   //  头插入空闲链表
                 m_pFreeHead->m_pPrev = pDelEvent;
             }
 
             m_pFreeHead = pDelEvent;
 
-            pDelEvent->Reset();
+            pDelEvent->Reset();     // 重置
         }
         else
-        {
+        {   // 执行下一个定时器
             pCurEvent = pCurEvent->m_pNext;
         }
     }
@@ -151,7 +153,8 @@ BOOL TimerManager::OnTimerEvent(TimeEvent* pEvent)
 
     BOOL bRet = (*pEvent->m_pTimerFuncSlot)(pEvent->m_nData);
 
-    //如要定时器返回FALSE, 表示需要被删除
+    // 如要定时器返回FALSE, 表示需要被删除
+    // 不删除，就会成为周期性的定时器
 
     return bRet;
 }

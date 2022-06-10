@@ -6,6 +6,7 @@
 #include "google/protobuf/message.h"
 #include "ConfigFile.h"
 
+/* 网络服务 */
 class ServiceBase : public IDataHandler//, public CEventFuncManager
 {
 protected:
@@ -39,19 +40,20 @@ public:
 
     CConnection*    GetConnectionByID(INT32 nConnID);
 
+    //
     BOOL            Update();
 
     BOOL            FixFrameNum(INT32 nFrames);
 
 protected:
-    IPacketDispatcher*                  m_pPacketDispatcher;
+    IPacketDispatcher*                  m_pPacketDispatcher;        // 处理收到的包的对象
 
-    std::deque<NetPacket>*              m_pRecvDataQueue;
-    std::deque<NetPacket>*              m_pDispathQueue;
-    CSpinLock                           m_QueueLock;
+    std::deque<NetPacket>*              m_pRecvDataQueue;           // 收包队列
+    std::deque<NetPacket>*              m_pDispathQueue;            // 发包队列
+    CSpinLock                           m_QueueLock;                // 自选锁
 
     //以下用于统计
-    UINT64                              m_uLastTick;
+    UINT64                              m_uLastTick;                // 最近一次的tick数
     INT32                               m_nRecvNum;
     INT32                               m_nSendNum;
     INT32                               m_nFps;

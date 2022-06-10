@@ -2,7 +2,7 @@
 #include "Log.h"
 CLog::CLog(void)
 {
-    m_LogLevel = 4;
+    m_LogLevel = 4;     // 默认日志级别
 }
 
 CLog::~CLog(void)
@@ -34,8 +34,10 @@ BOOL CLog::Start(std::string strPrefix, std::string strLogDir)
 
     CHAR szFileName[512];
 
+    // 拼凑文件名
     snprintf(szFileName, 512, "%s/%s-%02d%02d%02d-%02d%02d%02d.log",  strLogDir.c_str(), strPrefix.c_str(), CurTime.tm_year % 100, CurTime.tm_mon + 1, CurTime.tm_mday, CurTime.tm_hour, CurTime.tm_min, CurTime.tm_sec);
 
+    // 打开文件
     m_pLogFile = fopen(szFileName, "w+");
 
     if(m_pLogFile == NULL)
@@ -182,9 +184,11 @@ void CLog::LogInfo( char* lpszFormat, ... )
 
     CHAR szLog[2048] = { 0 };
 
+    // 拼凑日志头
     tm CurTime = CommonFunc::GetCurrTmTime();
     snprintf(szLog, 2048, "[%02d-%02d-%02d %02d:%02d:%02d][%04x][I] ", CurTime.tm_year % 100, CurTime.tm_mon + 1, CurTime.tm_mday, CurTime.tm_hour, CurTime.tm_min, CurTime.tm_sec, 0xffff & CommonFunc::GetCurThreadID());
 
+    // 拼凑日志信息
     va_list argList;
     va_start( argList, lpszFormat );
     vsnprintf(szLog + 28, 1024 - 28,  lpszFormat, argList);
@@ -192,11 +196,14 @@ void CLog::LogInfo( char* lpszFormat, ... )
 
     strncat(szLog, "\n", 3);
 
+    // 写入文件中
     m_WriteMutex.lock();
     fputs(szLog, m_pLogFile);
     fflush(m_pLogFile);
     m_LogCount++;
+    // 向控制台打印
     CommonFunc::PrintColorText(szLog, Log_Info);
+    // 检查是否需要截断日志文件
     CheckAndCreate();
     m_WriteMutex.unlock();
 

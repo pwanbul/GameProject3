@@ -63,6 +63,7 @@ private:
     int   _field_count;
 };
 
+/* 数据库操作 */
 class CppMySQL3DB
 {
 public:
@@ -149,20 +150,19 @@ private:
     CppMySQL3DB& operator=(const CppMySQL3DB& db);
 
 private:
-    /* msyql 连接句柄 */
-    MYSQL* m_pMySqlDB;
+    MYSQL* m_pMySqlDB;      // mysql连接句柄
     CppMySQLQuery m_dbQuery;
 
-    int          m_nErrNo;
-    std::string  m_strError;
+    int          m_nErrNo;          // 错误码
+    std::string  m_strError;        // 错误信息
 
 
-    std::string  m_strHost;
-    std::string  m_strUser;
-    std::string  m_strPwd;
-    std::string  m_strDB;
-    std::string  m_strCharSet; //字符集
-    int          m_nPort;
+    std::string  m_strHost;         // 数据库IP地址
+    std::string  m_strUser;         // 数据库账号
+    std::string  m_strPwd;          // 数据库密码
+    std::string  m_strDB;           // 要使用的DB
+    std::string  m_strCharSet;      // 字符集
+    int          m_nPort;           // 数据库端口
 };
 
 #endif //__MYSQL_HELPER_H__

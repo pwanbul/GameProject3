@@ -41,6 +41,7 @@ struct IPacketDispatcher
     virtual BOOL OnSecondTimer() = 0;
 };
 
+/* 网络数据包 */
 struct NetPacket
 {
     NetPacket(INT32 nConnID = 0, IDataBuffer* pBuffer = NULL, INT32 nMsgID = 0 )
@@ -52,9 +53,9 @@ struct NetPacket
         m_nMsgID = nMsgID;
     }
 
-    INT32        m_nMsgID;
-    INT32        m_nConnID;
-    IDataBuffer* m_pDataBuffer;
+    INT32        m_nMsgID;      // 消息ID
+    INT32        m_nConnID;     // 连接ID
+    IDataBuffer* m_pDataBuffer;     // 数据包
 };
 
 

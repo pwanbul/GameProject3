@@ -16,6 +16,7 @@
 #include <deque>
 #include <mutex>
 #include <thread>
+#include <cmath>
 //#include <locale>
 //#include <codecvt>
 #include "Platform.h"

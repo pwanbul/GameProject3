@@ -2,6 +2,7 @@
 #define __SPIN_LOCK_h__
 #include <atomic>
 
+/* 自选锁 */
 class CSpinLock
 {
     std::atomic_flag m_flag = ATOMIC_FLAG_INIT;
@@ -41,6 +42,7 @@ public:
         return true;
     }
 
+    // CAS语义
     bool TryLock()
     {
         return m_flag.test_and_set(/*std::memory_order_acquire*/);

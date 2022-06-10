@@ -20,11 +20,13 @@ CLogMsgHandler::~CLogMsgHandler()
 
 BOOL CLogMsgHandler::Init(INT32 nReserved)
 {
+    // 读取配置
     std::string strHost = CConfigFile::GetInstancePtr()->GetStringValue("mysql_log_svr_ip");
     INT32 nPort = CConfigFile::GetInstancePtr()->GetIntValue("mysql_log_svr_port");
     std::string strUser = CConfigFile::GetInstancePtr()->GetStringValue("mysql_log_svr_user");
     std::string strPwd = CConfigFile::GetInstancePtr()->GetStringValue("mysql_log_svr_pwd");
     std::string strDb = CConfigFile::GetInstancePtr()->GetStringValue("mysql_log_svr_db_name");
+    // 创建数据库对象
     BOOL bRet = m_DBConnection.open(strHost.c_str(), strUser.c_str(), strPwd.c_str(), strDb.c_str(), nPort);
     if(!bRet)
     {

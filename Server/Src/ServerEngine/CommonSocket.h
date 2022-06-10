@@ -3,26 +3,31 @@
 
 #define SOCKET_ERROR        (-1)
 
+/* 网络misc函数 */
 namespace CommonSocket
 {
-//设置套接字为可重用状态
+// 设置套接字为可重用状态
 BOOL        SetSocketReuseable(SOCKET hSocket);
 
-//设置套接字为非阻塞状态
+// 设置套接字为非阻塞状态
 BOOL        SetSocketBlock(SOCKET hSocket, BOOL bBlock);
 
 BOOL        SetSocketNoDelay(SOCKET hSocket);
 
 BOOL        SetSocketKeepAlive( SOCKET hSocket, int nKeepInterval, int nKeepCount, int nKeepIdle );
 
+// 初始化网络
 BOOL        InitNetwork();
 
 BOOL        UninitNetwork();
 
+// socket(2)
 SOCKET      CreateSocket( int af = AF_INET, int type = SOCK_STREAM, int protocol = 0);
 
+// bind(2)
 BOOL        BindSocket( SOCKET hSocket, const struct sockaddr* pAddr, int nNamelen);
 
+// listen(2)
 BOOL        ListenSocket( SOCKET hSocket, int nBacklog);
 
 BOOL        ConnectSocket(SOCKET hSocket, const char* pAddr, short sPort);
@@ -41,6 +46,7 @@ void        CloseSocket(SOCKET hSocket);
 
 std::string GetLocalIP();
 
+// inet_pton(2)
 UINT32      IpAddrStrToInt(CHAR* pszIpAddr);
 
 UINT32      IpAddrStrToInt(const CHAR* pszIpAddr);
